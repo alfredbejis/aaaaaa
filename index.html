@@ -1782,6 +1782,124 @@ input[type="number"] {
   transform: translateY(0);
 }
 
+/* Banner de Cookies */
+.cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border-color);
+  padding: 20px;
+  z-index: 1000;
+  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+  display: none;
+}
+
+.cookie-banner.show {
+  display: block;
+}
+
+.cookie-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.cookie-content p {
+  margin-bottom: 15px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.cookie-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cookie-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cookie-btn.accept {
+  background: var(--accent);
+  color: white;
+}
+
+.cookie-btn.accept:hover {
+  background: var(--accent-dark);
+}
+
+.cookie-btn.reject {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.cookie-btn.reject:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.cookie-btn.configure {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.cookie-btn.configure:hover {
+  background: rgba(0, 170, 85, 0.1);
+}
+
+/* Responsive para el banner de cookies */
+@media (max-width: 768px) {
+  .cookie-content p {
+    font-size: 0.8rem;
+  }
+  
+  .cookie-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .cookie-btn {
+    width: 100%;
+    max-width: 200px;
+  }
+}
+
+/* Estilo para la información legal del formulario */
+.form-legal-info {
+  background: rgba(0, 170, 85, 0.05);
+  border-left: 3px solid var(--accent);
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  font-size: 0.9rem;
+}
+
+.form-legal-info p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.form-legal-info a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.form-legal-info a:hover {
+  text-decoration: underline;
+}
+
 /* Responsive */
 @media (max-width: 1200px) {
   .container {
@@ -2601,6 +2719,11 @@ input[type="number"] {
 <!-- Formulario dinámico mejorado -->
 <section class="form-section" id="contacto">
   <div class="container">
+    <!-- Información legal sobre protección de datos -->
+    <div class="form-legal-info">
+      <p>Tus datos serán tratados por Partner Energético con la finalidad de gestionar tu solicitud de análisis de factura. Los datos proporcionados se conservarán mientras se mantenga la relación comercial o durante los años necesarios para cumplir con las obligaciones legales. Tienes derecho a acceder, rectificar y suprimir los datos, así como otros derechos, como se explica en la <a href="politica-privacidad.html">política de privacidad</a>.</p>
+    </div>
+    
     <div class="form-container" id="form-container">
       <h2 class="form-title fade-in-up">Solicita tu análisis gratuito</h2>
       <p class="form-subtitle fade-in-up">En menos de 24 horas recibirás un informe detallado con tu potencial ahorro</p>
@@ -2748,10 +2871,10 @@ input[type="number"] {
       <div class="footer-section">
         <h3>Legal</h3>
         <ul>
-          <li><a href="#">Aviso legal</a></li>
-          <li><a href="#">Política de privacidad</a></li>
-          <li><a href="#">Política de cookies</a></li>
-          <li><a href="#">Condiciones de uso</a></li>
+          <li><a href="aviso-legal.html">Aviso legal</a></li>
+          <li><a href="politica-privacidad.html">Política de privacidad</a></li>
+          <li><a href="politica-cookies.html">Política de cookies</a></li>
+          <li><a href="condiciones-uso.html">Condiciones de uso</a></li>
         </ul>
       </div>
       <div class="footer-section">
@@ -2768,6 +2891,18 @@ input[type="number"] {
     </div>
   </div>
 </footer>
+
+<!-- Banner de Cookies -->
+<div id="cookie-banner" class="cookie-banner">
+  <div class="cookie-content">
+    <p>Utilizamos cookies propias y de terceros para analizar nuestros servicios y mostrarte publicidad relacionada con tus preferencias basadas en un perfil elaborado a partir de tus hábitos de navegación. Puedes aceptar todas las cookies pulsando el botón "Aceptar" o configurarlas o rechazar su uso pulsando el botón "Configurar".</p>
+    <div class="cookie-buttons">
+      <button id="accept-cookies" class="cookie-btn accept">Aceptar</button>
+      <button id="reject-cookies" class="cookie-btn reject">Rechazar</button>
+      <button id="configure-cookies" class="cookie-btn configure">Configurar</button>
+    </div>
+  </div>
+</div>
 
 <script>
 // Crear partículas
@@ -3485,6 +3620,43 @@ function initBackgroundTransformation() {
   });
 }
 
+// Función para el banner de cookies
+function initCookieBanner() {
+  const cookieBanner = document.getElementById('cookie-banner');
+  const acceptBtn = document.getElementById('accept-cookies');
+  const rejectBtn = document.getElementById('reject-cookies');
+  const configureBtn = document.getElementById('configure-cookies');
+  
+  // Comprobar si ya se ha aceptado o rechazado
+  const cookiesAccepted = localStorage.getItem('cookiesAccepted');
+  
+  if (!cookiesAccepted) {
+    // Mostrar el banner si no hay decisión previa
+    setTimeout(() => {
+      cookieBanner.classList.add('show');
+    }, 1000);
+  }
+  
+  // Al aceptar
+  acceptBtn.addEventListener('click', () => {
+    localStorage.setItem('cookiesAccepted', 'true');
+    // Aquí podrías activar las cookies de análisis o terceros si las tienes
+    cookieBanner.classList.remove('show');
+  });
+  
+  // Al rechazar
+  rejectBtn.addEventListener('click', () => {
+    localStorage.setItem('cookiesAccepted', 'false');
+    // Aquí deberías desactivar las cookies no esenciales
+    cookieBanner.classList.remove('show');
+  });
+  
+  // Al configurar (redirigir a la política de cookies)
+  configureBtn.addEventListener('click', () => {
+    window.location.href = 'politica-cookies.html';
+  });
+}
+
 // Optimización de rendimiento para animaciones en dispositivos móviles
 function optimizeAnimationsForMobile() {
   const isMobile = window.innerWidth <= 768;
@@ -3593,6 +3765,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initChatBubble();
   initSmoothScroll();
   initBackgroundTransformation();
+  initCookieBanner(); // <-- AÑADE ESTA LÍNEA
   
   // Aplicar optimizaciones
   optimizeAnimationsForMobile();
