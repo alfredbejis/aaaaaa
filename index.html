@@ -1045,16 +1045,17 @@ h1, h2, h3 {
   overflow: hidden;
 }
 
-/* Carrusel de testimonios */
+/* Carrusel de testimonios - Estilos para arrastre */
 .testimonials-track {
   display: flex;
   gap: 30px;
-  animation: slideTestimonials 20s linear infinite;
+  transition: none; /* Quitamos la transición para control directo */
+  cursor: grab; /* Cursor de arrastre */
+  user-select: none; /* Evitar selección de texto al arrastrar */
 }
 
-@keyframes slideTestimonials {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+.testimonials-track.dragging {
+  cursor: grabbing; /* Cursor cuando se está arrastrando */
 }
 
 .testimonial-card {
@@ -2142,6 +2143,15 @@ input[type="number"] {
       transform: translateY(-100vh) scale(1);
     }
   }
+  
+  /* Optimizar animaciones GSAP para móviles */
+  .fade-in-up {
+    transition-duration: 0.3s;
+  }
+  
+  .info-card, .step, .testimonial-card, .metric-folder {
+    transition-duration: 0.3s;
+  }
 }
 
 /* Optimización para dispositivos táctiles */
@@ -2170,6 +2180,11 @@ input[type="number"] {
   .shiny-btn:active,
   .btn-secondary:active {
     transform: scale(0.98);
+  }
+  
+  /* Optimizar testimonios para táctil */
+  .testimonial-card:active .testimonial-card-inner {
+    transform: rotateY(180deg);
   }
 }
 
@@ -2559,7 +2574,7 @@ input[type="number"] {
   <div class="container">
     <h2 class="testimonials-title fade-in-up">Lo que dicen nuestros clientes</h2>
     <div class="testimonials-container">
-      <div class="testimonials-track">
+      <div class="testimonials-track" id="testimonials-track">
         <div class="testimonial-card fade-in-up">
           <div class="testimonial-card-inner">
             <div class="testimonial-front">
@@ -2657,57 +2672,6 @@ input[type="number"] {
             <div class="testimonial-back">
               <h4>Impacto en negocio</h4>
               <p class="testimonial-text">"Ahorro de +3.000€ anuales para mi negocio. Proceso rápido y resultado espectacular."</p>
-            </div>
-          </div>
-        </div>
-        <!-- Duplicados para efecto infinito -->
-        <div class="testimonial-card fade-in-up">
-          <div class="testimonial-card-inner">
-            <div class="testimonial-front">
-              <div class="testimonial-header">
-                <div class="testimonial-avatar">AC</div>
-                <div>
-                  <h4>Álvaro Clemente</h4>
-                  <div class="testimonial-source">Google Maps</div>
-                </div>
-              </div>
-              <div class="testimonial-stars">
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-              </div>
-              <p class="testimonial-text">"Al principio revisamos la factura de mi casa, pensando que tal vez había que hacer un leve ajuste, pero cuando vi el ahorro que podía tener anualmente, entendí cuanto me estaban robando. Ahora estoy ahorrando un 22% cada mes."</p>
-            </div>
-            <div class="testimonial-back">
-              <h4>Detalles del ahorro</h4>
-              <p class="testimonial-text">"Ahorro de 22% en factura anual, servicio profesional y atención personalizada. Recomendado 100%."</p>
-            </div>
-          </div>
-        </div>
-        <div class="testimonial-card fade-in-up">
-          <div class="testimonial-card-inner">
-            <div class="testimonial-front">
-              <div class="testimonial-header">
-                <div class="testimonial-avatar">JC</div>
-                <div>
-                  <h4>Joan Castellets</h4>
-                  <div class="testimonial-source">Google Maps</div>
-                </div>
-              </div>
-              <div class="testimonial-stars">
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-              </div>
-              <p class="testimonial-text">"Desde el primer día han tenido un trato cercano y me han transmitido confianza a la hora de realizar los cambios recomendados. Lo recomiendo al 100% por su profesionalidad."</p>
-            </div>
-            <div class="testimonial-back">
-              <h4>Experiencia profesional</h4>
-              <p class="testimonial-text">"Trato cercano, confianza y profesionalidad. El mejor servicio de optimización energética."</p>
             </div>
           </div>
         </div>
@@ -2908,7 +2872,7 @@ input[type="number"] {
 // Crear partículas
 function createParticles() {
   const particlesContainer = document.getElementById('particles');
-  const particleCount = 50;
+  const particleCount = window.innerWidth <= 768 ? 20 : 50; // Reducir partículas en móvil
   
   for (let i = 0; i < particleCount; i++) {
     const particle = document.createElement('div');
@@ -2954,6 +2918,9 @@ function initScrollReveal() {
   // Registrar el plugin ScrollTrigger
   gsap.registerPlugin(ScrollTrigger);
   
+  // Determinar si es móvil para ajustar las animaciones
+  const isMobile = window.innerWidth <= 768;
+  
   // Animación para elementos fade-in-up con aparición y desaparición fluida
   gsap.utils.toArray('.fade-in-up').forEach(element => {
     gsap.fromTo(element, 
@@ -2964,12 +2931,12 @@ function initScrollReveal() {
       {
         opacity: 1,
         y: 0,
-        duration: 0.4, // Reducido de 0.8 a 0.4
-        ease: "power2.out", // Cambiado a una curva más rápida
+        duration: isMobile ? 0.3 : 0.4, // Más rápido en móvil
+        ease: "power2.out",
         scrollTrigger: {
           trigger: element,
-          start: "top 80%",
-          end: "bottom 20%",
+          start: isMobile ? "top 90%" : "top 80%", // Se activa antes en móvil
+          end: isMobile ? "bottom 10%" : "bottom 20%",
           toggleActions: "play none none reverse",
           markers: false
         }
@@ -2987,12 +2954,12 @@ function initScrollReveal() {
       {
         x: 0,
         opacity: 1,
-        duration: 0.4, // Reducido
+        duration: isMobile ? 0.3 : 0.4,
         ease: "power2.out",
         scrollTrigger: {
           trigger: card,
-          start: "top 85%",
-          end: "bottom 15%",
+          start: isMobile ? "top 90%" : "top 85%",
+          end: isMobile ? "bottom 10%" : "bottom 15%",
           toggleActions: "play none none reverse",
           markers: false
         }
@@ -3010,13 +2977,13 @@ function initScrollReveal() {
       {
         y: 0,
         opacity: 1,
-        duration: 0.3, // Reducido
-        delay: index * 0.05, // Reducido el delay entre pasos
+        duration: isMobile ? 0.25 : 0.3,
+        delay: index * (isMobile ? 0.03 : 0.05), // Delay reducido en móvil
         ease: "power2.out",
         scrollTrigger: {
           trigger: step,
-          start: "top 85%",
-          end: "bottom 15%",
+          start: isMobile ? "top 90%" : "top 85%",
+          end: isMobile ? "bottom 10%" : "bottom 15%",
           toggleActions: "play none none reverse",
           markers: false
         }
@@ -3034,12 +3001,12 @@ function initScrollReveal() {
       {
         scale: 1,
         opacity: 1,
-        duration: 0.4, // Reducido
+        duration: isMobile ? 0.3 : 0.4,
         ease: "back.out(1.7)",
         scrollTrigger: {
           trigger: card,
-          start: "top 85%",
-          end: "bottom 15%",
+          start: isMobile ? "top 90%" : "top 85%",
+          end: isMobile ? "bottom 10%" : "bottom 15%",
           toggleActions: "play none none reverse",
           markers: false
         }
@@ -3059,13 +3026,13 @@ function initScrollReveal() {
         y: 0,
         opacity: 1,
         scale: 1,
-        duration: 0.3, // Reducido
-        delay: index * 0.05, // Reducido el delay
+        duration: isMobile ? 0.25 : 0.3,
+        delay: index * (isMobile ? 0.03 : 0.05),
         ease: "power2.out",
         scrollTrigger: {
           trigger: folder,
-          start: "top 85%",
-          end: "bottom 15%",
+          start: isMobile ? "top 90%" : "top 85%",
+          end: isMobile ? "bottom 10%" : "bottom 15%",
           toggleActions: "play none none reverse",
           markers: false
         }
@@ -3657,6 +3624,139 @@ function initCookieBanner() {
   });
 }
 
+// Función para controlar el carrusel de testimonios con arrastre
+function initTestimonialsDrag() {
+  const testimonialsTrack = document.getElementById('testimonials-track');
+  const testimonialCards = document.querySelectorAll('.testimonial-card');
+  
+  // Variables para el control del arrastre
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+  let currentTranslate = 0;
+  let prevTranslate = 0;
+  let animationId;
+  
+  // Obtener el ancho de cada tarjeta y el gap
+  const cardWidth = testimonialCards[0].offsetWidth;
+  const gap = 30; // Debe coincidir con el gap en CSS
+  
+  // Eventos para el ratón (escritorio)
+  testimonialsTrack.addEventListener('mousedown', dragStart);
+  testimonialsTrack.addEventListener('mouseleave', dragEnd);
+  testimonialsTrack.addEventListener('mouseup', dragEnd);
+  testimonialsTrack.addEventListener('mousemove', dragMove);
+  
+  // Eventos para táctil (móvil)
+  testimonialsTrack.addEventListener('touchstart', dragStart);
+  testimonialsTrack.addEventListener('touchend', dragEnd);
+  testimonialsTrack.addEventListener('touchmove', dragMove);
+  
+  function dragStart(e) {
+    // Prevenir el comportamiento por defecto para evitar selección de texto
+    e.preventDefault();
+    
+    // Determinar si es un evento táctil o de ratón
+    if (e.type === 'touchstart') {
+      startX = e.touches[0].clientX;
+    } else {
+      startX = e.clientX;
+    }
+    
+    isDown = true;
+    testimonialsTrack.classList.add('dragging');
+    
+    // Guardar la posición actual del scroll
+    scrollLeft = testimonialsTrack.scrollLeft;
+    prevTranslate = currentTranslate;
+    
+    // Cancelar cualquier animación en curso
+    if (animationId) {
+      cancelAnimationFrame(animationId);
+    }
+  }
+  
+  function dragEnd() {
+    if (!isDown) return;
+    
+    isDown = false;
+    testimonialsTrack.classList.remove('dragging');
+    
+    // Calcular la posición final con snap
+    const cardWidthWithGap = cardWidth + gap;
+    const totalWidth = testimonialCards.length * cardWidthWithGap - gap;
+    const maxTranslate = Math.max(0, totalWidth - testimonialsTrack.parentElement.offsetWidth);
+    
+    // Calcular el índice de la tarjeta más cercana
+    const currentIndex = Math.round(-currentTranslate / cardWidthWithGap);
+    const targetTranslate = -Math.min(currentIndex, testimonialCards.length - 1) * cardWidthWithGap;
+    
+    // Aplicar la posición final con animación
+    animateToPosition(targetTranslate);
+  }
+  
+  function dragMove(e) {
+    if (!isDown) return;
+    
+    e.preventDefault();
+    
+    // Determinar si es un evento táctil o de ratón
+    let currentX;
+    if (e.type === 'touchmove') {
+      currentX = e.touches[0].clientX;
+    } else {
+      currentX = e.clientX;
+    }
+    
+    // Calcular el desplazamiento
+    const diff = currentX - startX;
+    currentTranslate = prevTranslate + diff;
+    
+    // Aplicar el desplazamiento directamente
+    testimonialsTrack.style.transform = `translateX(${currentTranslate}px)`;
+  }
+  
+  function animateToPosition(targetTranslate) {
+    const startTranslate = currentTranslate;
+    const startTime = performance.now();
+    const duration = 300; // Duración de la animación en ms
+    
+    function animate(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Función de easing (ease-out)
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+      
+      // Calcular la posición actual
+      currentTranslate = startTranslate + (targetTranslate - startTranslate) * easeOut;
+      
+      // Aplicar la transformación
+      testimonialsTrack.style.transform = `translateX(${currentTranslate}px)`;
+      
+      // Continuar la animación si no ha terminado
+      if (progress < 1) {
+        animationId = requestAnimationFrame(animate);
+      }
+    }
+    
+    animationId = requestAnimationFrame(animate);
+  }
+  
+  // Ajustar el carrusel cuando se redimensiona la ventana
+  window.addEventListener('resize', () => {
+    // Recalcular la posición actual
+    const cardWidthWithGap = cardWidth + gap;
+    const currentIndex = Math.round(-currentTranslate / cardWidthWithGap);
+    const maxIndex = Math.max(0, testimonialCards.length - 1);
+    const clampedIndex = Math.min(currentIndex, maxIndex);
+    
+    // Ajustar la posición
+    currentTranslate = -clampedIndex * cardWidthWithGap;
+    testimonialsTrack.style.transform = `translateX(${currentTranslate}px)`;
+  });
+}
+
 // Optimización de rendimiento para animaciones en dispositivos móviles
 function optimizeAnimationsForMobile() {
   const isMobile = window.innerWidth <= 768;
@@ -3765,7 +3865,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initChatBubble();
   initSmoothScroll();
   initBackgroundTransformation();
-  initCookieBanner(); // <-- AÑADE ESTA LÍNEA
+  initCookieBanner();
+  initTestimonialsDrag(); // <-- AÑADE ESTA LÍNEA
   
   // Aplicar optimizaciones
   optimizeAnimationsForMobile();
@@ -3817,6 +3918,4 @@ window.addEventListener('resize', () => {
 });
 </script>
 </body>
-
-
 </html>
